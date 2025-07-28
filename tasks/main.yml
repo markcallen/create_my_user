@@ -1,0 +1,54 @@
+---
+- name: Check if 'sudo' is installed
+  ansible.builtin.stat:
+    path: /usr/bin/sudo
+  register: sudo_bin
+
+- name: Fail if 'sudo' is not installed
+  ansible.builtin.fail:
+    msg: "'sudo' is not installed on the target host. Please install it before running this role."
+  when: not sudo_bin.stat.exists
+
+- name: Check if 'docker' is installed
+  ansible.builtin.stat:
+    path: /usr/bin/docker
+  register: docker_bin
+
+- name: Fail if 'docker' is not installed
+  ansible.builtin.fail:
+    msg: "'docker' is not installed on the target host. Please install it before running this role."
+  when: not docker_bin.stat.exists
+
+- name: Ensure user "{{ user_name }}" exists
+  ansible.builtin.user:
+    name: "{{ user_name }}"
+    shell: /bin/bash
+    state: present
+    groups: sudo,docker
+    append: yes
+    create_home: yes
+
+- name: Ensure passwordless sudo for the sudo group
+  ansible.builtin.copy:
+    src: sudoers.j2
+    dest: /etc/sudoers.d/90-passwordless-sudo
+    mode: '0440'
+    owner: root
+    group: root
+    validate: '/usr/sbin/visudo -cf %s'
+
+- name: Ensure .ssh directory exists
+  ansible.builtin.file:
+    path: "/home/{{ user_name }}/.ssh"
+    state: directory
+    owner: "{{ user_name }}"
+    group: "{{ user_name }}"
+    mode: '0700'
+
+- name: Download SSH public key from GitHub
+  ansible.builtin.get_url:
+    url: "{{ ssh_key_url }}"
+    dest: "/home/{{ user_name }}/.ssh/authorized_keys"
+    mode: '0600'
+    owner: "{{ user_name }}"
+    group: "{{ user_name }}"

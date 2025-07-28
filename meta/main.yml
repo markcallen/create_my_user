@@ -1,0 +1,11 @@
+---
+galaxy_info:
+  role_name: create_my_user
+  author: markcallen
+  description: Creates a user, enables passwordless sudo, and installs SSH keys.
+  min_ansible_version: 2.9
+  platforms:
+    - name: Ubuntu
+      versions:
+        - all
+dependencies: []
