@@ -16,6 +16,12 @@ ssh_key_url: "https://github.com/markcallen.keys"
 
 ## Example Playbook
 
+Install this playbook
+
+```
+ansible-galaxy install git+https://github.com/markcallen/create_my_user.git
+```
+
 ```yaml
 - name: Provision user
   hosts: all
@@ -25,4 +31,8 @@ ssh_key_url: "https://github.com/markcallen.keys"
     ssh_key_url: "https://github.com/markcallen.keys"
   roles:
     - create_my_user
+```
+
+```
+ansible-playbook -i <hostname>, -u root example_playbook.yml
 ```
